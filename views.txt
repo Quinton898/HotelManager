@@ -1,0 +1,37 @@
+view 1 
+CREATE VIEW Available_Rooms_Per_Area AS
+SELECT h.address AS area, COUNT(*) AS available_rooms
+FROM rooms r
+JOIN hotel h ON r.address = h.address
+WHERE NOT EXISTS(
+	SELECT 1 FROM booking b
+	WHERE b.room_num = r.room_num AND b.address=r.address
+	AND current_date BETWEEN b.start_date AND b.end_date
+	
+
+)
+
+AND NOT EXISTS(
+	SELECT 1 FROM renting rt
+	WHERE rt.room_num = r.room_num AND rt.address = r.address
+	AND current_date BETWEEN rt.start_date AND rt.end_date
+)
+GROUP BY h.address;
+
+
+
+view 2
+CREATE VIEW HotelRoomCapacity AS
+SELECT h.address AS hotel_address, SUM(
+	CASE
+		WHEN r.capacity = 'single' THEN 1
+		WHEN r.capacity = 'double' THEN 2
+		WHEN r.capacity = 'queen' THEN 2
+		WHEN r.capacity = 'double queen' THEN 4
+		WHEN r.capacity = 'suite' THEN 4
+		ELSE 0
+	END
+) AS total_capacity
+FROM hotel h
+JOIN rooms r ON h.address = r.address
+GROUP BY h.address;

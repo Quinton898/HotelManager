@@ -1,0 +1,32 @@
+SELECT *
+FROM rooms 
+WHERE (address, price) IN (
+    SELECT address, MIN(price) 
+    FROM rooms
+    GROUP BY address
+)
+Order by price;
+-Gets the cheapest room from each hotel
+
+Select *
+From rooms
+Where (address, room_num)in(
+	SELECT address, room_num
+	From renting
+	Where current_date>= start_date and end_date>= current_date
+);
+-Gets the rooms that are currently rented
+
+Select *
+From hotel
+where address like '%CA';
+-Gets all hotels that are in California\
+
+Select *
+From hotel
+where chain_address in (
+	Select address 
+	From hotel_chain
+	where num_of_hotels >=10
+);
+-Gets the hotels from the hotel chains with atleast 10 hotels

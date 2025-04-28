@@ -1,0 +1,15 @@
+{
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "password": "postgres",
+            "database": "simpleehotels",
+            "username": "postgres",
+            "name": "simpleehotels viewer"
+        }
+    ]
+}

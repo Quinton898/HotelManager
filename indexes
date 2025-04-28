@@ -1,0 +1,38 @@
+(5%) Database indexes: Implement at least 3 indexes on the relations of your database and 
+justify why you have chosen these indexes: explain what type of queries and data updates you 
+are expecting on your database and how these indexes are useful to accelerate querying of the 
+database.  
+
+Index hold references that allow the database to quickly find rows in table without the requirement to scan
+through each row
+
+
+CREATE INDEX index_room_key ON rooms(room_num, address);
+
+Improves queries that join/filter based on room identity and location(address). 
+Booking and renting operations will be improved as they require certain locations (hotel locations) and room numbers.
+Joins between rooms, bookings and renting will be improved
+Where clauses that filter room number and address
+Exist subqueries checking for room availablity 
+Index created as a lot of queries are made for that join booking renting and rooms which deal with large tables and it is better if the querying becomes faster
+
+This index improves queries that filter/join based on room number and address. Booking and Renting requires finding specific room  in specific hotel ( moslty for availablilty checks) --> increases speeds
+
+
+
+CREATE INDEX index_customer_ssn ON customer(ssn);
+
+SSN is the primary way to find customers in bookings and rentings
+The index is useful for joining customers with booking, renting
+help with quickly finding customers to validate when booking and renting
+also for locating customers when checking history and performing updates and deletes
+
+
+
+CREATE INDEX index_booking_dates ON booking(start_date, end_date);
+
+decreases search time to find which rooms are free --> avoids scanning full table
+Commonly used to find room availability within the certain date range
+
+
+

@@ -1,0 +1,114 @@
+Create Function unique_email()
+	returns trigger AS
+	$BODY$
+Begin
+if exists(
+	Select address
+	from hotel
+	where address = NEW.address
+)
+or exists(
+	Select address
+	from hotel_chain
+	where address = NEW.address
+)
+or exists(
+	Select address
+	from customer
+	where address = NEW.address
+)
+or exists(
+	Select address
+	from employee
+	where address = NEW.address
+)
+Then 
+	RAISE EXCEPTION 'Address must be unique across all tables';
+End if;
+Return new;
+End
+$BODY$ Language plpgsql;
+
+
+Create Trigger check_email
+Before Update or Insert on customer
+For Each Row
+Execute Procedure unique_email();
+
+Create Trigger check_email
+Before Update or Insert on hotel
+For Each Row
+Execute Procedure unique_email();
+
+Create Trigger check_email
+Before Update or Insert on hotel_chain
+For Each Row
+Execute Procedure unique_email();
+
+Create Trigger check_email
+Before Update or Insert on employee
+For Each Row
+Execute Procedure unique_email();
+
+- This trigger makes sure all adress are unique
+
+CREATE OR REPLACE FUNCTION archive_booking()
+RETURNS TRIGGER AS
+$BODY$
+BEGIN
+    -- Insert the booking into the archives table
+    INSERT INTO archives(archive_ID, start_time, end_time, price, customer_ssn, archive_type, booking_ID)
+    VALUES (
+        NEW.booking_id,        -- Use the booking ID as the archive ID
+        NEW.start_date,        -- Start time of the booking
+        NEW.end_date,          -- End time of the booking
+        NEW.price,             -- Price of the booking
+        NEW.customer_ssn,      -- Customer SSN
+        'booking',             -- Archive type is 'booking'
+        NEW.booking_id         -- Booking ID
+    );
+
+    RETURN NEW;
+END;
+$BODY$
+LANGUAGE plpgsql;
+
+Create Trigger archive_booking
+After Insert on booking
+For Each Row
+Execute Procedure archive_booking();
+
+- This trigger makes it so once a booking  is made an archive is created 
+
+
+CREATE OR REPLACE FUNCTION deleting_booking()
+RETURNS TRIGGER AS
+$BODY$
+BEGIN
+    IF EXISTS (
+        SELECT room_num, address, start_date,end_date
+        FROM booking
+        WHERE room_num = NEW.room_num 
+          AND address = NEW.address 
+          AND start_date = NEW.start_date 
+          AND end_date = NEW.end_date
+    ) THEN   
+       delete from booking
+	   where room_num = NEW.room_num 
+          AND address = NEW.address 
+          AND start_date = NEW.start_date 
+          AND end_date = NEW.end_date;
+    END IF;
+    RETURN NEW;
+END;
+$BODY$
+LANGUAGE plpgsql;
+
+
+Create Trigger deleting_booking
+After insert on renting
+For Each Row
+Execute Procedure deleting_booking();
+
+
+-This trigger deletes a booking when it is transformed into a renting.
